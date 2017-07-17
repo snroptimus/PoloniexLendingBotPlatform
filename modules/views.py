@@ -109,7 +109,8 @@ def stopBot(request):
 def sendBotLog(request):
     if (request.method == 'GET'):
         print("Get BotLog Request")
-        data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
+#        data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
+        data = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
         jsonData = json.loads(data)
         return JsonResponse(jsonData)
 
