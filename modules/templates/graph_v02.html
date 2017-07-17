@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <title>BeeSmart - Server</title>
+
+    <link href="../static/design_graph.css" rel="stylesheet">
+    <link href="../static/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.0.0/nouislider.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.0.0/nouislider.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.0.4/wNumb.js"></script>
+</head>
+
+<body>
+    <div class="clearfix borderbox" id="page">
+
+        <div id="Logo">
+            <!-- svg -->
+            <img class="svg" src="../static/Grafik/beesmart_logo_v00.svg" alt="" />
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="/home"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+                <li><a href="/graph"><i class="fa fa-area-chart" aria-hidden="true"></i> Graph</a></li>
+                <li><a href="/settings"><i class="fa fa-wrench" aria-hidden="true"></i> Settings</a></li>
+                <li><a href="/about"><i class="fa fa-info" aria-hidden="true"></i> About</a></li>
+                <li><a href="/help"><i class="fa fa-question" aria-hidden="true"></i> Help</a></li>
+            </ul>
+        </nav>
+
+
+        <div id="content">
+
+            <div id="filter">
+                <div id="Bienenhaus">
+                    <ul id="Filter_Bienenhaus">
+                    </ul>
+                </div>
+                <div id="Bienenstock">
+                    <ul id="Filter_Bienenstock">
+                    </ul>
+                </div>
+                <div id="Sensor">
+                    <ul>
+                        <li>Temperatur</li>
+                        <li>Feuchtigkeit</li>
+                        <li>Licht</li>
+                        <li>Gewicht</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="width:90%; margin:40px">
+                <div class="noUiSlider" id="timeInput"></div>
+                <button id="zoomIn" type="button" class="btn btn-default btn-lg" onclick=zoom( "in")>
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+        </button>
+                <button id="zoomOut" ttype="button" class="btn btn-default btn-lg" onclick=zoom( "out")>
+            <i class="fa fa-search-minus" aria-hidden="true"></i>
+        </button>
+                <button id="zoomOut" ttype="button" class="btn btn-default btn-lg" onclick=zoom( "all")>
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </button>
+            </div>
+
+            <div style="margin: 40px; width: 90%;">
+                <canvas id="canvas"></canvas>
+            </div>
+
+            <div style="margin: 40px; width: 90%;">
+                Download Datensatz als Matlab-File
+                <i class="fa fa-download" aria-hidden="true" onclick=download( "Matlab")></i> CSV-File
+                <i class="fa fa-download" aria-hidden="true" onclick=download( "csv")></i>
+            </div>
+
+        </div>
+
+        <script type="text/javascript">
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: "/api/v1.0/locations",
+                success: function(data) {
+                    {
+                        for (var i = 0; i < data.result.length; i++) {
+                            var new_entry = data.result[0]['location'];
+                            $('#Filter_Bienenhaus').append('<li onclick="add_query_entry_1(this)">' + new_entry + ' ' + '<i style="display:none" id="ch:' + new_entry + '" class="fa fa-check" aria-hidden="true"></i></li>');
+                        }
+                    };
+                },
+                dataType: "json"
+            });
+
+            $.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: "/api/v1.0/devices",
+                success: function(data) {
+                    {
+                        for (var i = 0; i < data.result.length; i++) {
+                            var new_entry = data.result[i]['device'];
+                            $('#Filter_Bienenstock').append('<li onclick="add_query_entry_2(this)">' + new_entry + '</li>');
+                        }
+                    };
+                },
+                dataType: "json"
+            });
+
+            // Event onClick für Filter
+
+            var query = {
+                "data_query": {},
+                "data_sort": {}
+            };
+
+            function add_query_entry_1(elmnt) {
+                query.data_query["data.Bienenhaus"] = elmnt.innerText;
+                $('#ch:' + elmnt.innerText).show(500);
+                console.log(query);
+            }
+
+            function add_query_entry_2(elmnt) {
+                query.data_query["data.Bienenstock"] = elmnt.innerText;
+                console.log(query);
+            }
+
+
+            // ------------------------------------------
+            var date1 = new Date(2013, 2, 2, 0, 0, 0, 0)
+            var date2 = new Date(2016, 1, 1, 0, 0, 0, 0)
+                //,'data.timestamp':{'$gte': "+date1.toJSON()+", '$lt': "+date2.toJSON()+"}
+                //var query = {"data_query":{"data.Bienenhaus":"Sonnenschein","data.Bienenstock":"Alpha","data.temp":{"$exists":true}},"data_sort":{"data.timestamp":1}}
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                url: "/api/v1.0/data/get",
+                data: JSON.stringify(query),
+                success: function(data) {
+                    convert_temp_data(data.result);
+                    myLineChart.update();
+                },
+                dataType: "json"
+            });
+
+            var chartData = {}
+            chartData['labels'] = []
+            var tempData = []
+
+
+            function convert_temp_data(data) {
+                console.log('Convert_Temp_Data')
+
+                var dataDic = {}
+
+                for (var i = 0; i < data.length; i++) {
+                    var object = data[i].data
+
+                    dataDic[i] = {}
+
+                    dataDic[i]['timestamp'] = object.timestamp
+                    dataDic[i]['temp'] = object.temp
+                }
+
+
+                for (var key in dataDic) {
+                    object = dataDic[key]
+                    chartData['labels'].push(object.timestamp)
+                    tempData.push(object.temp)
+                }
+            }
+
+            var tempDataset = {
+                label: "Temperatur",
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(75,192,192,0.4)",
+                borderColor: "rgba(75,192,192,1)",
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                pointBorderColor: "rgba(75,192,192,1)",
+                pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+                data: tempData,
+                spanGaps: false,
+            }
+
+            chartData['datasets'] = [tempDataset]
+                // Chart
+
+            // Time Input 2015-01-01 05:00:00
+            function toFormat(v) {
+                var date = new Date(v)
+                return date.toLocaleString()
+            }
+
+
+            var dateSlider = document.getElementById('timeInput')
+
+            noUiSlider.create(dateSlider, {
+                start: [new Date(chartData['labels'][0]), new Date(chartData['labels'].slice(-1)[0])],
+                connect: [false, true, false],
+                tooltips: [true, true],
+                behaviour: 'drag',
+                range: {
+                    'min': new Date(2013).getTime(),
+                    'max': new Date(2017).getTime()
+                },
+                format: {
+                    to: toFormat,
+                    from: Number
+                }
+            })
+
+            // Chart
+            var minTime = new Date(2014)
+            var maxTime = new Date(2017)
+
+
+            var ctx = document.getElementById("canvas").getContext("2d");
+            var myLineChart = Chart.Line(ctx, {
+                type: 'temperatur',
+                data: chartData,
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    hour: 'MMM D, hA'
+                                }
+                            }
+                        }]
+                    }
+                }
+            })
+
+            dateSlider.noUiSlider.on('update', function(values) {
+                myLineChart.options.scales.xAxes[0].time.min = values[0]
+                myLineChart.options.scales.xAxes[0].time.max = values[1]
+                myLineChart.update()
+            })
+
+            function zoom(x) {
+                var sliderValues = dateSlider.noUiSlider.get()
+                var sliderMin = new Date(sliderValues[0]).getTime()
+                var sliderMax = new Date(sliderValues[1]).getTime()
+                var sliderRangeMin = dateSlider.noUiSlider.options.range.min
+                var sliderRangeMax = dateSlider.noUiSlider.options.range.max
+                var newMin = (sliderMin - sliderRangeMin)
+                var newMax = (sliderRangeMax - sliderMax)
+                if (x === 'in') {
+                    newMin = sliderMin - newMin / 2
+                    newMax = sliderMax + newMax / 2
+                } else if (x === 'out') {
+                    if (newMin < 100000) {
+                        newMin = sliderMax - sliderMin
+                    }
+                    if (newMax < 100000) {
+                        newMax = sliderMax - sliderMin
+                    }
+                    newMin = sliderRangeMin - newMin
+                    newMax = sliderRangeMax + newMax
+                } else if (x === 'all') {
+                    newMin = new Date(chartData['labels'][0]).getTime()
+                    sliderMin = newMin
+                    newMax = new Date(chartData['labels'].slice(-1)[0]).getTime()
+                    sliderMax = newMax
+                }
+                dateSlider.noUiSlider.updateOptions({
+                    start: [sliderMin, sliderMax],
+                    range: {
+                        'min': newMin,
+                        'max': newMax
+                    }
+                })
+            }
+
+            function download(format) {
+
+                var url = "/api/v1.0/download/data/" + format;
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function() {
+                    if (this.status === 200) {
+                        var filename = "";
+                        var disposition = xhr.getResponseHeader('Content-Disposition');
+                        if (disposition && disposition.indexOf('attachment') !== -1) {
+                            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                            var matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                        }
+                        var type = xhr.getResponseHeader('Content-Type');
+
+                        var blob = new Blob([this.response], {
+                            type: type
+                        });
+                        if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                            // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+                            window.navigator.msSaveBlob(blob, filename);
+                        } else {
+                            var URL = window.URL || window.webkitURL;
+                            var downloadUrl = URL.createObjectURL(blob);
+
+                            if (filename) {
+                                // use HTML5 a[download] attribute to specify filename
+                                var a = document.createElement("a");
+                                // safari doesn't support this yet
+                                if (typeof a.download === 'undefined') {
+                                    window.location = downloadUrl;
+                                } else {
+                                    a.href = downloadUrl;
+                                    a.download = filename;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                }
+                            } else {
+                                window.location = downloadUrl;
+                            }
+
+                            setTimeout(function() {
+                                URL.revokeObjectURL(downloadUrl);
+                            }, 100); // cleanup
+                        }
+                    }
+                };
+                xhr.setRequestHeader('Content-type', 'application/json');
+                var query = {
+                    "data_query": {
+                        "data.Bienenhaus": "Sonnenschein",
+                        "data.Bienenstock": "Alpha",
+                        "data.temp": {
+                            "$exists": true
+                        }
+                    },
+                    "data_sort": {
+                        "data.timestamp": 1
+                    }
+                }
+                xhr.send(JSON.stringify(query));
+            }
+        </script>
+
+        <footer class="footer">
+            <p>&copy; Johannes Maierhofer, et. al. 2016</p>
+        </footer>
+
+    </div>
+    <!--        <script src="../static/js/build/app.js"></script> -->
+</body>
+
+</html>
+
+<!--<img src="kirkjufell.jpg" srcset="kirkjufell.jpg 1x, kirkjufell@2x.jpg 2x" alt="Photograph for retina">-->

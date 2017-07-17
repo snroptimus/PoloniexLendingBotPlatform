@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <title>BeeSmart - Login</title>
+
+    <script src="../static/JavaScript/jquery-2.2.3.min.js"></script>
+    <script src="../static/JavaScript/react.js"></script>
+    <script src="../static/JavaScript/react-dom.js"></script>
+    <script src="../static/JavaScript/browser.min.js"></script>
+    <link href="../static/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../static/toastr-2.1.2/toastr.min.css" rel="stylesheet">
+    <link href="../static/css/login.css" rel="stylesheet">
+
+</head>
+<body>
+    {% csrf_token %}
+    <div class="login-page" id="loginform">
+        <div class="form">
+            <p class="alert">*Please input correctly.*</p>
+            <div class="register-form anim" id="register">
+            </div>
+            <div class="login-form anim" id="login">
+            </div>
+        </div>
+    </div>
+    <div class="verify-page" id="verifyform">                
+        <div class="form">            
+            <div id = "verify">
+        </div>
+    </div>
+    <script type="text/babel" src="../static/JavaScript/login.js"></script>
+</body>
+</html>

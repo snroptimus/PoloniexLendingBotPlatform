@@ -1,0 +1,13 @@
+
+        .button-delete {
+            background: rgb(202, 60, 60); /* this is a maroon */
+        }
+
+        .button-add {
+          background: rgb(20,200,20);
+        }
+
+.deviceList{
+  margin: 50px;
+
+}

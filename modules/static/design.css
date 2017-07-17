@@ -1,0 +1,110 @@
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+nav {
+  background-color: #fff;
+  border: 1px solid #dedede;
+  border-radius: 3px;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.055);
+  color: #888;
+  display: block;
+  margin: 40px;
+  overflow: hidden;
+  width: 60%;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+
+nav ul {
+    margin: 0;
+    padding: 0;
+  }
+
+    nav ul li {
+      display: inline-block;
+      list-style-type: none;
+
+      transition: all 0.2s;
+    }
+
+
+      nav > ul > li > a {
+        color: #aaa;
+        display: block;
+        line-height: 40px;
+        padding: 0 24px;
+        text-decoration: none;
+      }
+
+      nav > ul > li:hover {
+          background-color: gray;
+        }
+
+        nav > ul > li:hover > a {
+          color: rgb( 255, 255, 255 );
+        }
+
+
+#device_status
+{
+  color: #888;
+  position: relative;
+  float: left;
+  border: 1px solid #dedede;
+  border-radius: 3px;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.055);
+  margin: 25px;
+  padding: 15px;
+  min-width: 200px;
+  width: 40%;
+  background-color: #fff;
+}
+
+#device_status h2
+{
+  color: black;
+}
+
+#page
+{
+  position:relative;
+	z-index: 1;
+	min-height: 600px;
+	background-image: none;
+	border-width: 0px;
+	border-color: #000000;
+	background-color: #FFEF3F;
+	width: 100%;
+	max-width: 1000px;
+	margin-left: auto;
+	margin-right: auto;
+  overflow: scroll;
+  padding: 20px;
+}
+
+footer
+{
+    background-color: gray;
+    position: absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    padding-left: 20px
+}
+
+#Logo
+{
+	z-index: 7;
+	position: relative;
+	width: 30%;
+}
+/* resize images */
+#Logo img {
+    width: 100%;
+    height: auto;
+}
