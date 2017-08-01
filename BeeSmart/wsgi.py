@@ -19,4 +19,3 @@ application = get_wsgi_application()
 
 print("OKOK")
 bots.activeSpeedBot()
-#    newProcess = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
