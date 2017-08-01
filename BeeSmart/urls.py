@@ -25,6 +25,7 @@ from modules.views import setKey
 from modules.views import startBot
 from modules.views import stopBot
 from modules.views import sendBotLog
+from modules.views import sendSpeedData
 from modules.views import getbotInfo
 
 from modules.views import LoginView
@@ -34,6 +35,7 @@ from modules.views import SettingsView
 from modules.views import AboutView
 from modules.views import HelpView
 from modules.views import VerifyView
+from modules.views import ChartView
 
 urlpatterns = [
     url(r'^$', LoginView.as_view()),
@@ -42,6 +44,7 @@ urlpatterns = [
     url(r'^graph/', GraphView.as_view()),
     url(r'^settings/', SettingsView.as_view()),
     url(r'^about/', AboutView.as_view()),
+    url(r'^chart/', ChartView.as_view()),
     url(r'^help/', HelpView.as_view()),
     url(r'^verify', VerifyView.as_view()),
     url(r'^admin/', admin.site.urls),
@@ -54,6 +57,7 @@ urlpatterns = [
     url(r'^setKey', setKey),
     url(r'^startBot', startBot),
     url(r'^stopBot', stopBot),
+    url(r'^speedTest', sendSpeedData),
     url(r'^botlog', sendBotLog),
     url(r'^botInfo', getbotInfo),
 ]

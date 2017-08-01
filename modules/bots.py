@@ -16,12 +16,14 @@ def isBotInActive(Username):
         else:
             return 1
 
+def activeSpeedBot():
+    subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/lending_speed.py"])
+
 def activateBot(Username):
     ret = Bots.getBotParam(Username)
     print("Bot Start")
-#    newProcess = subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
-    newProcess = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
-
+    newProcess = subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
+#    newProcess = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
     
     Bots.setPID(Username, newProcess.pid)
     
