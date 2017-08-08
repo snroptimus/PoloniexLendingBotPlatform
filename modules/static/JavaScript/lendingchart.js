@@ -117,21 +117,66 @@ function loadBotInfo() {
     });
 }
 
+function movingAverageFilter(data) {
+    var rawData = [];
+    var rowCount = data.length;
+
+    console.log(data);
+    for ( var i = 1; i < rowCount; i++ ) {
+        rawData[i - 1] = data[i].value - data[i-1].value;
+    }
+    console.log("RAW");
+    console.log(rawData);
+    var filterData = [];
+    var dataCount = rawData.length;
+    for ( var i = 0; i < dataCount; i++ ) {
+        var sampleCount = 0;
+        var sampleSum = 0;
+        for ( var j = i; i - j < 60; j -- ) {
+            sampleCount ++;
+            sampleSum += rawData[j];
+            if ( j == 0 )
+                break;
+        }
+        filterData[i] = sampleSum / sampleCount;
+    }
+    console.log(filterData);
+    return filterData;
+}
+
 function updateChartData(data) {
     var rowCount = data.length;
     var tempData = [];
-    for ( var i = 0; i < rowCount - 1; i ++ ) {
+    var tempData1 = [];
+    
+
+    var filterData = movingAverageFilter(data);
+    
+    for ( var i = 1; i < rowCount - 1; i ++ ) {
         var firstDate = new Date(data[i].date);
         tempData.push( {
             "date": firstDate,
-            "value": data[i].value,
-            "volume": data[i].volume
+            "volume": data[i].value,
+            "value": data[i].value - data[i-1].value, 
         });
-        
     }
+
     chartData = tempData;
-    console.log(chartData);
+
+    var filterData = movingAverageFilter(data);
+    
+    for ( var i = 0; i < filterData.length - 1; i ++ ) {
+        var firstDate = new Date(data[i].date);
+        tempData1.push( {
+            "date": firstDate,
+            "value": filterData[i],
+            "volume": 0
+        });
+    }
+    chartVelocityData = tempData1;
+    
     drawChart();
+    drawVelocityChart();
 }
 
 function loadData() {
@@ -565,6 +610,7 @@ $(document).ready(function () {
 
 
    var chartData;// = generateChartData();
+   var chartVelocityData;
 
 //   function generateChartData() {
 //     var chartData = [];
@@ -614,7 +660,7 @@ function drawChart() {
 
     "panels": [ {
       "showCategoryAxis": false,
-      "title": "Value",
+      "title": "RawVelocity",
       "percentHeight": 70,
 
       "stockGraphs": [ {
@@ -622,6 +668,113 @@ function drawChart() {
         "valueField": "value",
         "type": "smoothedLine",
         "lineThickness": 2,
+        "precision": 5,
+        "bullet": "round"
+      } ],
+
+
+      "stockLegend": {
+        "valueTextRegular": " ",
+        "markerType": "none"
+      }
+    }, {
+      "title": "SupplyAmount",
+      "percentHeight": 30,
+      "stockGraphs": [ {
+        "valueField": "volume",
+        "type": "column",
+        "cornerRadiusTop": 2,
+        "fillAlphas": 1
+      } ],
+
+      "stockLegend": {
+        "valueTextRegular": " ",
+        "markerType": "none"
+      }
+    } ],
+
+    "numberFormatter": {
+        "precision": -5,
+        "decimalSeparator": ",",
+        "thousandsSeparator": ""
+    },
+
+    "chartScrollbarSettings": {
+      "graph": "g1",
+      "usePeriod": "10mm",
+      "position": "top"
+    },
+
+    "chartCursorSettings": {
+      "valueBalloonsEnabled": true
+    },
+
+    "periodSelector": {
+      "position": "top",
+      "dateFormat": "YYYY-MM-DD HH:MM:SS",
+      "inputFieldWidth": 150,
+      "periods": [ {
+        "period": "hh",
+        "count": 1,
+        "label": "1 hour",
+        "selected": true
+      }, {
+        "period": "hh",
+        "count": 2,
+        "label": "2 hours"
+      }, {
+        "period": "hh",
+        "count": 5,
+        "label": "5 hour"
+      }, {
+        "period": "hh",
+        "count": 12,
+        "label": "12 hours"
+      }, {
+        "period": "MAX",
+        "label": "MAX"
+      } ]
+    },
+
+    "panelsSettings": {
+      "usePrefixes": true
+    },
+  } );
+}
+
+function drawVelocityChart() {
+  var chart = AmCharts.makeChart( "chartdiv_velocity", {
+    "type": "stock",
+    "theme": "light",
+    "categoryAxesSettings": {
+      "minPeriod": "mm"
+    },
+
+    "dataSets": [ {
+      "color": "#b0de09",
+      "fieldMappings": [ {
+        "fromField": "value",
+        "toField": "value"
+      }, {
+        "fromField": "volume",
+        "toField": "volume"
+      } ],
+
+      "dataProvider": chartVelocityData,
+      "categoryField": "date"
+    } ],
+
+    "panels": [ {
+      "showCategoryAxis": false,
+      "title": "Filtered Velocity",
+      "percentHeight": 70,
+
+      "stockGraphs": [ {
+        "id": "g1",
+        "valueField": "value",
+        "type": "smoothedLine",
+        "lineThickness": 2,
+        "precision": 5,
         "bullet": "round"
       } ],
 
@@ -645,6 +798,12 @@ function drawChart() {
         "markerType": "none"
       }
     } ],
+
+    "numberFormatter": {
+        "precision": -5,
+        "decimalSeparator": ",",
+        "thousandsSeparator": ""
+    },
 
     "chartScrollbarSettings": {
       "graph": "g1",
