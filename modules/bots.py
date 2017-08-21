@@ -18,8 +18,8 @@ def isBotInActive(Username):
 
 def activeSpeedBot():
 #   Change Path
-#    subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/lending_speed.py"])
-    subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lending_speed.py"])
+    subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/lending_speed.py"])
+#    subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lending_speed.py"])
 
 def activateBot(Username):
     ret = Bots.getBotParam(Username)

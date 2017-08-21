@@ -121,8 +121,9 @@ def sendBotLog(request):
 def sendSpeedData(request):
     if (request.method == 'GET'):
         print("Get BotLog Request")
-        data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
-#        data = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
+#       Change Path
+#        data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
+        data = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
         data = "{\"chartData\":" + "[" + data + "{}]}"
         jsonData = json.loads(data)
         return JsonResponse(jsonData)

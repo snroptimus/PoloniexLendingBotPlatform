@@ -152,18 +152,41 @@ function updateChartData(data) {
 
     var filterData = movingAverageFilter(data);
     
-    for ( var i = 1; i < rowCount - 1; i ++ ) {
+    var avgValue = 0;
+    var avgVolume = 0;
+    var avgCount = 0;
+
+    for ( var i = 0; i < rowCount - 2; i ++ ) {
+//        data[i].date.setSeconds(0);
+
+//        console.log(data[i].date.slice(0, -4));
+        var time1 = data[i].date.slice(0, -4);
+        var time2 = data[i+1].date.slice(0, -4);
+        
         var firstDate = new Date(data[i].date);
-        tempData.push( {
-            "date": firstDate,
-            "volume": data[i].value,
-            "value": data[i].value - data[i-1].value, 
-        });
+        if ( time1 != time2) {
+            avgValue /= avgCount;
+            avgVolume /= avgCount;
+//            console.log(avgValue, avgVolume, avgCount, time1);
+            tempData.push( {
+                "date": firstDate,
+                "volume": data[i].volume,
+                "value": data[i].value, 
+            });
+            avgValue = 0;
+            avgVolume = 0;
+            avgCount = 0;
+        } else {
+            avgValue += data[i].value;
+            avgVolume += data[i].volume;
+            avgCount++;
+        }
+        
     }
 
     chartData = tempData;
 
-    var filterData = movingAverageFilter(data);
+/*    var filterData = movingAverageFilter(data);
     
     for ( var i = 0; i < filterData.length - 1; i ++ ) {
         var firstDate = new Date(data[i].date);
@@ -173,10 +196,10 @@ function updateChartData(data) {
             "volume": 0
         });
     }
-    chartVelocityData = tempData1;
+    chartVelocityData = tempData1;*/
     
     drawChart();
-    drawVelocityChart();
+//    drawVelocityChart();
 }
 
 function loadData() {
@@ -660,7 +683,7 @@ function drawChart() {
 
     "panels": [ {
       "showCategoryAxis": false,
-      "title": "RawVelocity",
+      "title": "MaxLendingRate(%)",
       "percentHeight": 70,
 
       "stockGraphs": [ {
@@ -678,7 +701,7 @@ function drawChart() {
         "markerType": "none"
       }
     }, {
-      "title": "SupplyAmount",
+      "title": "MatchedAmount(BTC)",
       "percentHeight": 30,
       "stockGraphs": [ {
         "valueField": "volume",
@@ -782,7 +805,15 @@ function drawVelocityChart() {
       "stockLegend": {
         "valueTextRegular": " ",
         "markerType": "none"
-      }
+      },
+
+      "valueAxes": [ {
+          "usePrefixes": true,
+          "recalculateToPercents": true,
+          "labelFunction": function( value, valueText, valueAxis){
+                return 0;
+          }
+      }]
     }, {
       "title": "Volume",
       "percentHeight": 30,
