@@ -18,6 +18,9 @@ class LoginView(TemplateView):
 class IndexView(TemplateView):
     template_name = "index.html"
 
+class BitfinexView(TemplateView):
+    template_name = "bitfinex.html"
+
 class GraphView(TemplateView):
     template_name = "graph_v02.html"
 
@@ -83,20 +86,21 @@ def confirm(request):
 def setParam(request):
     if (request.method == 'POST'):
         print("SetParam")
-        bots.setBotLendParam(request.POST['minRate'], request.POST['minRateLonger'], request.POST['duration'], request.POST['username'])
+        bots.setBotLendParam(request.POST['minRate'], request.POST['minRateLonger'], request.POST['duration'], request.POST['username'], request.POST['exchange'])
         return HttpResponse('success')
         
 def setKey(request):
     if (request.method == 'POST'):
         print(request.POST['username'])
-        Bots.connectKey(request.POST['API'], request.POST['Secret'], request.POST['username'])
+        Bots.connectKey(request.POST['API'], request.POST['Secret'], request.POST['username'], request.POST['exchange'])
         print("SetKey")
         return HttpResponse('success')
 
 def startBot(request):
     if (request.method == 'POST'):
         print("StartBot")
-        ret = bots.makeBot(request.POST['username'])
+        print(request.POST['exchange'])
+        ret = bots.makeBot(request.POST['username'], request.POST['exchange'])
         if (ret == 1):
             return HttpResponse('success')
         elif (ret == 0):
@@ -106,15 +110,24 @@ def startBot(request):
 def stopBot(request):
     if (request.method == 'POST'):
         print("StopBot")
-        bots.stopBot(request.POST['username'])
+        bots.stopBot(request.POST['username'], request.POST['exchange'])
         return HttpResponse('success')
 
 def sendBotLog(request):
     if (request.method == 'GET'):
         print("Get BotLog Request")
 #       Change Path
-#        data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
-        data = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
+        '''
+        if ( request.GET['exchange'] == "Poloniex"):
+            data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
+        elif ( request.GET['exchange'] == "Bitfinex"):
+            data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/Bitfinexlendingbot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
+        '''
+
+        if ( request.GET['exchange'] == "Poloniex"):
+            data = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
+        elif ( request.GET['exchange'] == "Bitfinex"):
+            data = open('/var/www/tradingbot/PoloniexLendingBotProject/BitfinexLendingBot/www/botlogs/' + request.GET['username'] + '_botlog.json').read() #opens the json file and saves the raw contents        
         jsonData = json.loads(data)
         return JsonResponse(jsonData)
 
@@ -122,9 +135,15 @@ def sendSpeedData(request):
     if (request.method == 'GET'):
         print("Get BotLog Request")
 #       Change Path
-#        data = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
-        data = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
-        data = "{\"chartData\":" + "[" + data + "{}]}"
+        '''
+        pdata = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
+        bdata = open('/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/Bitfinexlendingbot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
+        '''
+
+        pdata = open('/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
+        bdata = open('/var/www/tradingbot/PoloniexLendingBotProject/BitfinexLendingBot/www/botlogs/speedTest.json').read() #opens the json file and saves the raw contents        
+        
+        data = "{\"pChartData\":" + "[" + pdata + "{}]," + "\"bChartData\":" + "[" + bdata + "{}]}"
         jsonData = json.loads(data)
         return JsonResponse(jsonData)
 
@@ -133,9 +152,13 @@ def getbotInfo(request):
         print("\n\nGet BotInfo Request\n\n")
         data = Bots.getBotParam(request.GET['username'])
         del data['_id']
-        if ( bots.isBotInActive(request.GET['username']) == 0):
-            data['botStatus'] = True
+        if ( bots.isBotInActive(request.GET['username'], "Poloniex") == 0):
+            data['polobotStatus'] = True
         else:
-            data['botStatus'] = False
+            data['polobotStatus'] = False
+        if ( bots.isBotInActive(request.GET['username'], "Bitfinex") == 0):
+            data['bitbotStatus'] = True
+        else:
+            data['bitbotStatus'] = False
 #        jsonData = json.loads(data) 
         return JsonResponse(data)

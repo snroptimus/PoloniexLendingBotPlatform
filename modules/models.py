@@ -35,13 +35,20 @@ class Register(models.Model):
             'email' : email,
             'confirm' : True,
             'hash' : hashCode,
-            'apikey': "",
-            'secret': "",
-            'botStatus': False,
-            'minRate': 0.005,
-            'minRateLonger': 0.05,
-            'pid': -1,
-            'duration': 60
+            'poloapikey': "",
+            'polosecret': "",
+            'polobotStatus': False,
+            'polominRate': 0.005,
+            'polominRateLonger': 0.05,
+            'polopid': -1,
+            'poloduration': 60,
+            'bitapikey': "",
+            'bitsecret': "",
+            'bitbotStatus': False,
+            'bitminRate': 0.005,
+            'bitminRateLonger': 0.05,
+            'bitpid': -1,
+            'bitduration': 30,
         }
         ret = collection.find({'name' : name, 'email' : email}).count()
         if (ret > 0): return -1
@@ -78,22 +85,28 @@ class CheckName(models.Model):
         return ret
 
 class Bots(models.Model):
-    def connectKey(apikey, secret, name):
+    def connectKey(apikey, secret, name, exchange):
         client = MongoClient('localhost', 27017)
         db = client['beesmart']
         collection = db['userlist']
 #        mycollection = collection.find_one({'name' : name})
-        collection.update_one({'name': name}, {'$set':{'apikey': apikey, 'secret': secret}}, upsert=False)
+        if ( exchange == "Poloniex" ):
+            collection.update_one({'name': name}, {'$set':{'poloapikey': apikey, 'polosecret': secret}}, upsert=False)
+        elif ( exchange == "Bitfinex" ):
+            collection.update_one({'name': name}, {'$set':{'bitapikey': apikey, 'bitsecret': secret}}, upsert=False)
         print(apikey)
         print(secret)
         print(name)
     
-    def setLendParam(minRate, minRateLonger, duration, name):
+    def setLendParam(minRate, minRateLonger, duration, name, exchange):
         client = MongoClient('localhost', 27017)
         db = client['beesmart']
         collection = db['userlist']
 #        mycollection = collection.find_one({'name' : name})
-        collection.update_one({'name': name}, {'$set':{'minRate': minRate, 'minRateLonger': minRateLonger, 'duration': duration}}, upsert=False)
+        if ( exchange == "Poloniex" ):
+            collection.update_one({'name': name}, {'$set':{'polominRate': minRate, 'polominRateLonger': minRateLonger, 'poloduration': duration}}, upsert=False)
+        elif ( exchange == "Bitfinex" ):
+            collection.update_one({'name': name}, {'$set':{'bitminRate': minRate, 'bitminRateLonger': minRateLonger, 'bitduration': duration}}, upsert=False)
 
     def getBotParam(name):
         client = MongoClient('localhost', 27017)
@@ -103,16 +116,22 @@ class Bots(models.Model):
         ret = collection.find_one({'name': name})
         return ret
     
-    def setStatus(name, status):
+    def setStatus(name, status, exchange):
         client = MongoClient('localhost', 27017)
         db = client['beesmart']
         collection = db['userlist']
 #        mycollection = collection.find_one({'name' : name})
-        collection.update_one({'name': name}, {'$set':{'botStatus': status}}, upsert=False)
+        if ( exchange == "Poloniex" ):
+            collection.update_one({'name': name}, {'$set':{'polobotStatus': status}}, upsert=False)
+        elif ( exchange == "Bitfinex" ):
+            collection.update_one({'name': name}, {'$set':{'bitbotStatus': status}}, upsert=False)
 
-    def setPID(name, pid):
+    def setPID(name, pid, exchange):
         client = MongoClient('localhost', 27017)
         db = client['beesmart']
         collection = db['userlist']
 #        mycollection = collection.find_one({'name' : name})
-        collection.update_one({'name': name}, {'$set':{'pid': pid}}, upsert=False)
+        if ( exchange == "Poloniex" ):
+            collection.update_one({'name': name}, {'$set':{'polopid': pid}}, upsert=False)
+        elif ( exchange == "Bitfinex" ):
+            collection.update_one({'name': name}, {'$set':{'bitpid': pid}}, upsert=False)

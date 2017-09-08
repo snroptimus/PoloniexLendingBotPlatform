@@ -99,7 +99,7 @@
                 </button>
                 <img src="../static/images/icon192.png" height="32" width="32" style="margin-top: 8px;margin-right: 8px;margin-left: -15px;vertical-align:top">
                 <div style="display:inline-block">
-                    <h4 class="brand-margin">Poloniex Lending Bot</h4>
+                    <h4 class="brand-margin" id="botTitle">Poloniex Lending Bot</h4>
                     <h5 class="brand-margin" id="updated">Not updated</h5>
                 </div>
             </div>
@@ -121,7 +121,14 @@
                         </a>
                     </li>
 
-                    <li data-toggle="collapse" data-target=".navbar-collapse.in" id="signout" onClick="chart()">
+                    <li data-toggle="collapse" data-target=".navbar-collapse.in"  onClick="changeExchange()">
+                        <a href="#" >
+                            <i class="glyphicon glyphicon-retweet"></i>
+                            <span id="exchangeTitle">BitfinexBot</span>
+                        </a>
+                    </li>
+
+                    <li data-toggle="collapse" data-target=".navbar-collapse.in" id="Chart" onClick="chart()">
                         <a href="#" >
                             <i class="glyphicon glyphicon-signal"></i>
                             Chart
@@ -198,7 +205,6 @@
             </div>
 
         </div>
-
 
         <div class="container" style="padding-top:50px;width: 100%;clear: both;">
             <div class="row" style="overflow-x:auto"> 

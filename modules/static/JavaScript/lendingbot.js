@@ -24,7 +24,9 @@ var Satoshi = new BTCDisplayUnit("Satoshi", 100000000);
 var displayUnit = BTC;
 var btcDisplayUnitsModes = [BTC, mBTC, Bits, Satoshi];
 
-var botStatus = false;
+var poloniexBotStatus = false;
+var bitfinexBotStatus = false;
+var currentExchange = "Poloniex";
 
 function updateJson(data) {
     $('#status').text(data.last_status);
@@ -228,27 +230,50 @@ function loadBotInfo() {
 //        data: {stuff_for_python: document.getElementById("Uname").value},
         data: {
             'username': getCookie('username'),
+            'exchange': currentExchange,
             'csrfmiddlewaretoken' : csrftoken,
         },
         success: function(response)
         {
             console.log(response);
-            $('#API').val(response.apikey);
-            $('#Secret').val(response.secret);
-            $('#rate').val(response.minRate);
-            $('#rateLonger').val(response.minRateLonger);
-            $('#duration').val(response.duration);
-
-            botStatus = response.botStatus;
-            console.log(botStatus);
-            if ( botStatus == false ) {
-                $('#botToggle').html('Activate Bot');
-                $("#botToggle").css("background-color","Green");
+            if ( currentExchange == "Poloniex") {
+                $('#API').val(response.poloapikey);
+                $('#Secret').val(response.polosecret);
+                $('#rate').val(response.polominRate);
+                $('#rateLonger').val(response.polominRateLonger);
+                $('#duration').val(response.poloduration);
             }
-            else {
-                $('#botToggle').html('Deactivate Bot');
-                $("#botToggle").css("background-color", '#CC0000');
+            else if ( currentExchange == "Bitfinex") {
+                $('#API').val(response.bitapikey);
+                $('#Secret').val(response.bitsecret);
+                $('#rate').val(response.bitminRate);
+                $('#rateLonger').val(response.bitminRateLonger);
+                $('#duration').val(response.bitduration);
             }
+            
+            poloniexBotStatus = response.polobotStatus;
+            bitfinexBotStatus = response.bitbotStatus;
+            console.log(poloniexBotStatus);
+            if ( currentExchange == "Poloniex" ) {
+                if ( poloniexBotStatus == false ) {
+                    $('#botToggle').html('Activate Bot');
+                    $("#botToggle").css("background-color","Green");
+                }
+                else {
+                    $('#botToggle').html('Deactivate Bot');
+                    $("#botToggle").css("background-color", '#CC0000');
+                }
+            } else {
+                if ( bitfinexBotStatus == false ) {
+                    $('#botToggle').html('Activate Bot');
+                    $("#botToggle").css("background-color","Green");
+                }
+                else {
+                    $('#botToggle').html('Deactivate Bot');
+                    $("#botToggle").css("background-color", '#CC0000');
+                }
+            }
+            
         },
         error: function(data)
         {
@@ -274,6 +299,12 @@ function loadData() {
         });;
     }*/
 
+    $('#botTitle').text(currentExchange + "Lending Bot");
+    if ( currentExchange == "Poloniex" )
+        $('#exchangeTitle').html("BitfinexBot");
+    else
+        $('#exchangeTitle').html("PoloniexBot");
+    console.log(currentExchange);
     var csrftoken = getCookie('csrftoken');
 
     $.ajax(
@@ -283,6 +314,7 @@ function loadData() {
 //        data: {stuff_for_python: document.getElementById("Uname").value},
         data: {
             'username': getCookie('username'),
+            'exchange': currentExchange,
             'csrfmiddlewaretoken' : csrftoken,
         },
         success: function(response)
@@ -455,6 +487,7 @@ function doSetParam() {
                 'minRateLonger': minRateLonger, 
                 'duration':duration,
                 'username': getCookie('username'),
+                'exchange': currentExchange,
                 'csrfmiddlewaretoken' : csrftoken,
             },
             success: function(response)
@@ -489,6 +522,7 @@ function doSetKey() {
                 'API': API, 
                 'Secret': Secret, 
                 'csrfmiddlewaretoken' : csrftoken,
+                'exchange': currentExchange,
                 'username': getCookie('username')
             },
             success: function(response)
@@ -505,18 +539,34 @@ function doSetKey() {
 }
 
 function toggleBot() {
-    if ( botStatus == true ) {
-        $('#botToggle').html('Activate Bot');
-        $("#botToggle").css("background-color","Green");
-        botStatus = false;
-        doStopBot();
+    if ( currentExchange == "Poloniex" ) {
+        if ( poloniexBotStatus == true ) {
+            $('#botToggle').html('Activate Bot');
+            $("#botToggle").css("background-color","Green");
+            poloniexBotStatus = false;
+            doStopBot();
+        }
+        else {
+            poloniexBotStatus = true;
+            $('#botToggle').html('Deactivate Bot');
+            $("#botToggle").css("background-color","#CC0000");
+            doStartBot();
+        }
+    } else {
+        if ( bitfinexBotStatus == true ) {
+            $('#botToggle').html('Activate Bot');
+            $("#botToggle").css("background-color","Green");
+            bitfinexBotStatus = false;
+            doStopBot();
+        }
+        else {
+            bitfinexBotStatus = true;
+            $('#botToggle').html('Deactivate Bot');
+            $("#botToggle").css("background-color","#CC0000");
+            doStartBot();
+        }
     }
-    else {
-        botStatus = true;
-        $('#botToggle').html('Deactivate Bot');
-        $("#botToggle").css("background-color","#CC0000");
-        doStartBot();
-    }
+    
 }
 function doStartBot() {
     var csrftoken = getCookie('csrftoken');
@@ -536,6 +586,7 @@ function doStartBot() {
                 'API': API, 
                 'Secret': Secret, 
                 'csrfmiddlewaretoken' : csrftoken,
+                'exchange': currentExchange,
                 'username': getCookie('username')
             },
             success: function(response)
@@ -572,6 +623,7 @@ function doStopBot() {
                 'API': API, 
                 'Secret': Secret, 
                 'username': getCookie('username'),
+                'exchange': currentExchange,
                 'csrfmiddlewaretoken' : csrftoken,
             },
             success: function(response)
@@ -648,6 +700,18 @@ function chart() {
     window.location = "/chart";   
 }
 
+function changeExchange() {
+    if ( currentExchange == "Poloniex")
+        currentExchange = "Bitfinex";
+    else
+        currentExchange = "Poloniex";
+    update();
+}
+
+function PoloniexBot() {
+    currentExchange = "Bitfinex";
+    location.reload();
+}
 function home() {
     window.location = "/home";
 }

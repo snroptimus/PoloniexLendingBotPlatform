@@ -36,6 +36,7 @@ from modules.views import AboutView
 from modules.views import HelpView
 from modules.views import VerifyView
 from modules.views import ChartView
+from modules.views import BitfinexView
 
 urlpatterns = [
     url(r'^$', LoginView.as_view()),
@@ -48,6 +49,7 @@ urlpatterns = [
     url(r'^help/', HelpView.as_view()),
     url(r'^verify', VerifyView.as_view()),
     url(r'^admin/', admin.site.urls),
+    url(r'^bitfinex/', BitfinexView.as_view()),
 
     url(r'^login', login),
     url(r'^register', register),    
@@ -57,7 +59,7 @@ urlpatterns = [
     url(r'^setKey', setKey),
     url(r'^startBot', startBot),
     url(r'^stopBot', stopBot),
-    url(r'^speedTest', sendSpeedData),
+    url(r'^getSpeedTest', sendSpeedData),
     url(r'^botlog', sendBotLog),
     url(r'^botInfo', getbotInfo),
 ]

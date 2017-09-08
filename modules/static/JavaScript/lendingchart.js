@@ -184,7 +184,7 @@ function updateChartData(data) {
         
     }
 
-    chartData = tempData;
+//    chartDataPoloniex = tempData;
 
 /*    var filterData = movingAverageFilter(data);
     
@@ -197,8 +197,9 @@ function updateChartData(data) {
         });
     }
     chartVelocityData = tempData1;*/
-    
-    drawChart();
+    return tempData;
+//    drawChartPoloniex();
+//    drawChartBitfinex();
 //    drawVelocityChart();
 }
 
@@ -224,7 +225,7 @@ function loadData() {
     $.ajax(
     {
         type: "GET",
-        url: "/speedTest" ,
+        url: "/getSpeedTest" ,
 //        data: {stuff_for_python: document.getElementById("Uname").value},
         data: {
             'username': getCookie('username'),
@@ -233,7 +234,10 @@ function loadData() {
         success: function(response)
         {
             console.log(response);
-            updateChartData(response['chartData']);
+            chartDataPoloniex = updateChartData(response['pChartData']);
+            drawChartPoloniex();
+            chartDataBitfinex = updateChartData(response['bChartData']);
+            drawChartBitfinex();
             setTimeout('loadData()', refreshRate * 1000)
         },
         error: function(data)
@@ -632,8 +636,8 @@ $(document).ready(function () {
 
 
 
-   var chartData;// = generateChartData();
-   var chartVelocityData;
+   var chartDataPoloniex;// = generateChartData();
+   var chartDataBitfinex;// = generateChartData();
 
 //   function generateChartData() {
 //     var chartData = [];
@@ -659,8 +663,8 @@ $(document).ready(function () {
 //     return chartData;
 //   }
 
-function drawChart() {
-  var chart = AmCharts.makeChart( "chartdiv", {
+function drawChartPoloniex() {
+  var chart = AmCharts.makeChart( "chartdiv_Poloniex", {
     "type": "stock",
     "theme": "light",
     "categoryAxesSettings": {
@@ -677,13 +681,13 @@ function drawChart() {
         "toField": "volume"
       } ],
 
-      "dataProvider": chartData,
+      "dataProvider": chartDataPoloniex,
       "categoryField": "date"
     } ],
 
     "panels": [ {
       "showCategoryAxis": false,
-      "title": "MaxLendingRate(%)",
+      "title": "Poloniex_MaxLendingRate(%)",
       "percentHeight": 70,
 
       "stockGraphs": [ {
@@ -765,8 +769,8 @@ function drawChart() {
   } );
 }
 
-function drawVelocityChart() {
-  var chart = AmCharts.makeChart( "chartdiv_velocity", {
+function drawChartBitfinex() {
+  var chart = AmCharts.makeChart( "chartdiv_Bitfinex", {
     "type": "stock",
     "theme": "light",
     "categoryAxesSettings": {
@@ -783,13 +787,13 @@ function drawVelocityChart() {
         "toField": "volume"
       } ],
 
-      "dataProvider": chartVelocityData,
+      "dataProvider": chartDataBitfinex,
       "categoryField": "date"
     } ],
 
     "panels": [ {
       "showCategoryAxis": false,
-      "title": "Filtered Velocity",
+      "title": "Bitfinex_MaxLendingRate(%)",
       "percentHeight": 70,
 
       "stockGraphs": [ {
@@ -805,17 +809,9 @@ function drawVelocityChart() {
       "stockLegend": {
         "valueTextRegular": " ",
         "markerType": "none"
-      },
-
-      "valueAxes": [ {
-          "usePrefixes": true,
-          "recalculateToPercents": true,
-          "labelFunction": function( value, valueText, valueAxis){
-                return 0;
-          }
-      }]
+      }
     }, {
-      "title": "Volume",
+      "title": "MatchedAmount(BTC)",
       "percentHeight": 30,
       "stockGraphs": [ {
         "valueField": "volume",
