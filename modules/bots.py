@@ -47,10 +47,10 @@ def activateBot(Username, exchange):
         Bots.setPID(Username, newProcessBit.pid, exchange)
     '''
     if ( exchange == "Poloniex"):
-        newProcessPolo = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
+        newProcessPolo = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lendingbot_my.py", ret['poloapikey'], ret['polosecret'], str(ret['polominRate']), str(ret['polominRateLonger']), str(ret['poloduration']), Username])
         Bots.setPID(Username, newProcessPolo.pid, exchange)
     elif ( exchange == "Bitfinex"):
-        newProcessBit = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/BitfinexLendingBot/lendingbot_my.py", ret['apikey'], ret['secret'], str(ret['minRate']), str(ret['minRateLonger']), str(ret['duration']), Username])
+        newProcessBit = subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/BitfinexLendingBot/lendingbot_my.py", ret['bitapikey'], ret['bitsecret'], str(ret['bitminRate']), str(ret['bitminRateLonger']), str(ret['bitduration']), Username])
         Bots.setPID(Username, newProcessBit.pid, exchange)
     
     
