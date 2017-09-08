@@ -30,10 +30,10 @@ def activeSpeedBot():
     subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/poloniexlendingbot/lending_speed.py"])
     subprocess.Popen(["python", "/Volumes/Backup/workspace/Rio(Python_Crypto_Lending_Bot)/Bitfinexlendingbot/lending_speed.py"])
     '''
-    '''
+    
     subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/PoloniexLendingBot/lending_speed.py"])
     subprocess.Popen(["python", "/var/www/tradingbot/PoloniexLendingBotProject/BitfinexLendingBot/lending_speed.py"])
-    '''
+    
 
 def activateBot(Username, exchange):
     ret = Bots.getBotParam(Username)
